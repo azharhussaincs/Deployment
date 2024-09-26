@@ -26,3 +26,4 @@ jobs:
     - name: Run Tests
       run: |
         python manage.py test
+        nohup python manage.py runserer 0.0.0.0:8000 & 
