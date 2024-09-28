@@ -37,7 +37,7 @@ jobs:
     - name: Deploy to NGINX Server
       if: success()  # Only deploy if tests pass
       run: |
-        ssh -o StrictHostKeyChecking=no -i "test-cicd-deployment-kp.pem" ubuntu@ec2-52-54-98-30.compute-1.amazonaws.com << 'EOF'
+        ssh -tt -o StrictHostKeyChecking=no -i "test-cicd-deployment-kp.pem" ubuntu@ec2-52-54-98-30.compute-1.amazonaws.com << 'EOF'
           cd /actions-runner/_work/Deployment
           git pull origin main
           python manage.py migrate
