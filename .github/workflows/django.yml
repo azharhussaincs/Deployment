@@ -43,5 +43,7 @@ jobs:
           cd /actions-runner/_work/Deployment
           git pull origin main
           python manage.py migrate
-          sudo systemctl restart nginx
+          
+          # Start Gunicorn with a specified number of workers
+          sudo systemctl restart gunicorn
         EOF
