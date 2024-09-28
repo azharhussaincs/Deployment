@@ -31,18 +31,18 @@ jobs:
 
     - name: Save PEM key from secret
       run: |
-        echo "${{ secrets.EC2_PEM_KEY }}" | tr -d '\r' > test-cicd-deployment-kp.pem  # Save the key
-        chmod 400 test-cicd-deployment-kp.pem  # Ensure the key has the right permissions
+        echo "${{ secrets.EC2_PEM_KEY }}" | tr -d '\r' > test-cicd-deployment-kp.pem
+        chmod 400 test-cicd-deployment-kp.pem
 
     - name: Deploy to NGINX Server
       if: success()  # Only deploy if tests pass
       run: |
         eval "$(ssh-agent -s)"  # Start the SSH agent
+        ssh-add test-cicd-deployment-kp.pem  # Add the PEM key to the SSH agent
         ssh -tt -o StrictHostKeyChecking=no -i "test-cicd-deployment-kp.pem" ubuntu@ec2-52-54-98-30.compute-1.amazonaws.com << 'EOF'
-          set -x  # Enable debugging
-          cd ~/actions-runner/_work/Deployment/Deployment  # Correct path to manage.py
+          cd ~/actions-runner/_work/Deployment/Deployment
           git pull origin main
           python manage.py migrate
-          nohup python3 manage.py runserver 0.0.0.0:8000 &  # Start the Django server
+          nohup python3 manage.py runserver 0.0.0.0:8000 &
           sudo systemctl restart nginx
         EOF
