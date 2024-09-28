@@ -14,7 +14,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
       with:
@@ -32,17 +32,23 @@ jobs:
     - name: Save PEM key from secret
       run: |
         echo "${{ secrets.EC2_PEM_KEY }}" | tr -d '\r' > test-cicd-deployment-kp.pem
-        sudo chmod 400 test-cicd-deployment-kp.pem
+        sudo chmod 600 test-cicd-deployment-kp.pem  # Use sudo to change permissions
+        cat test-cicd-deployment-kp.pem  # Debugging line to inspect the key content
+
+    - name: Start SSH Agent
+      run: eval "$(ssh-agent -s)"  # Start the SSH agent
+
+    - name: Add SSH Key
+      run: |
+        ssh-add test-cicd-deployment-kp.pem  # Add the PEM key to the SSH agent
 
     - name: Deploy to NGINX Server
       if: success()  # Only deploy if tests pass
       run: |
-        eval "$(ssh-agent -s)"  # Start the SSH agent
-        ssh-add test-cicd-deployment-kp.pem  # Add the PEM key to the SSH agent
         ssh -tt -o StrictHostKeyChecking=no -i "test-cicd-deployment-kp.pem" ubuntu@ec2-52-54-98-30.compute-1.amazonaws.com << 'EOF'
           cd ~/actions-runner/_work/Deployment/Deployment
           git pull origin main
           python manage.py migrate
-          nohup python3 manage.py runserver 0.0.0.0:8000 &
-          sudo systemctl restart nginx
+          nohup python3 manage.py runserver 0.0.0.0:8000 &  # Run the Django server
+          sudo systemctl restart nginx  # Restart NGINX
         EOF
