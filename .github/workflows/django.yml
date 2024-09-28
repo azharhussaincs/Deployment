@@ -33,18 +33,18 @@ jobs:
     - name: Save PEM key from secret
       run: |
         echo "${{ secrets.EC2_PEM_KEY }}" | sed 's/\\n/\n/g' > test-cicd-deployment-kp.pem  # Correct newline format
-        sudo chmod 600 test-cicd-deployment-kp.pem  # Ensure correct permissions
+        chmod 600 test-cicd-deployment-kp.pem  # Ensure correct permissions
 
     # Step 2: Test SSH connection
     - name: Test SSH Connection
       run: |
-        ssh -i test-cicd-deployment-kp.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-54-98-30.compute-1.amazonaws.com "echo Connected to EC2" || echo "Connection Failed"
+        ssh -i test-cicd-deployment-kp.pem -o StrictHostKeyChecking=no -o BatchMode=yes ubuntu@ec2-52-54-98-30.compute-1.amazonaws.com "echo Connected to EC2" || echo "Connection Failed"
 
     # Step 3: Deploy to EC2 instance if tests pass and SSH connection works
     - name: Deploy to EC2 instance
       if: success()  # Only deploy if tests pass
       run: |
-        ssh -i test-cicd-deployment-kp.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-54-98-30.compute-1.amazonaws.com << 'EOF'
+        ssh -i test-cicd-deployment-kp.pem -o StrictHostKeyChecking=no -o BatchMode=yes ubuntu@ec2-52-54-98-30.compute-1.amazonaws.com << 'EOF'
           cd ~/actions-runner/_work/Deployment/Deployment
           git pull origin main
           python manage.py migrate
