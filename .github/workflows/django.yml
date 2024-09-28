@@ -32,15 +32,16 @@ jobs:
     - name: Save PEM key from secret
       run: |
         echo "${{ secrets.EC2_PEM_KEY }}" | tr -d '\r' > test-cicd-deployment-kp.pem
-        sudo chmod 600 test-cicd-deployment-kp.pem  # Use sudo to change permissions
-        cat test-cicd-deployment-kp.pem  # Debugging line to inspect the key content
+        sudo chmod 600 test-cicd-deployment-kp.pem  # Set correct permissions
 
     - name: Start SSH Agent
-      run: eval "$(ssh-agent -s)"  # Start the SSH agent
-
-    - name: Add SSH Key
       run: |
+        eval "$(ssh-agent -s)"  # Start the SSH agent
         ssh-add test-cicd-deployment-kp.pem  # Add the PEM key to the SSH agent
+
+    - name: Check SSH Agent
+      run: |
+        ps -ef | grep ssh-agent  # Check if the agent is running
 
     - name: Deploy to NGINX Server
       if: success()  # Only deploy if tests pass
