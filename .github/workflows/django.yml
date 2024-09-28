@@ -29,6 +29,11 @@ jobs:
       run: |
         python manage.py test
 
+    - name: Save PEM key from secret
+      run: |
+        echo "${{ secrets.EC2_PEM_KEY }}" | tr -d '\r' > test-cicd-deployment-kp.pem
+        chmod 400 test-cicd-deployment-kp.pem
+
     - name: Deploy to NGINX Server
       if: success()  # Only deploy if tests pass
       run: |
