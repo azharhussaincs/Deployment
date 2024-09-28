@@ -36,11 +36,6 @@ jobs:
         echo "${{ secrets.EC2_PEM_KEY }}" | tr -d '\r' > test-cicd-deployment-kp.pem
         chmod 400 test-cicd-deployment-kp.pem
 
-    - name: Start SSH Agent and Add Key
-      run: |
-        eval "$(ssh-agent -s)"
-        ssh-add test-cicd-deployment-kp.pem
-
     - name: Deploy to Server
       if: success()  # Only deploy if tests pass
       run: |
