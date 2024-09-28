@@ -35,7 +35,6 @@ jobs:
       run: |
         echo "${{ secrets.EC2_PEM_KEY }}" > test-cicd-deployment-kp.pem
         chmod 400 test-cicd-deployment-kp.pem
-        ssh-keygen -lf test-cicd-deployment-kp.pem  # Validate the PEM key
 
     - name: Deploy to Server
       if: success()  # Only deploy if tests pass
