@@ -29,26 +29,19 @@ jobs:
       run: |
         python manage.py test
 
-    # Fix: Save PEM key properly with newlines
+    # Step 1: Save PEM key properly with newlines (ensure formatting is correct)
     - name: Save PEM key from secret
       run: |
-        echo "${{ secrets.EC2_PEM_KEY }}" | sed 's/\\n/\n/g' > test-cicd-deployment-kp.pem  # Correct the PEM format with newlines
-        sudo chmod 600 test-cicd-deployment-kp.pem  # Adjust file permissions
-    
-    # Optional: Convert PEM key to OpenSSH format to avoid libcrypto issues
-    - name: Convert PEM key to OpenSSH format
-      run: |
-        ssh-keygen -p -m PEM -f test-cicd-deployment-kp.pem -P ""  # Convert to OpenSSH format
-    
-    # Fix: Start SSH Agent and add the key
-    - name: Start SSH Agent
-      run: |
-        eval "$(ssh-agent -s)"  # Start the SSH agent
-        ssh-add test-cicd-deployment-kp.pem  # Add the PEM key to the SSH agent
-      env:
-        SSH_AUTH_SOCK: /tmp/ssh-agent.sock  # Ensure SSH agent socket is set
-    
-    # Alternative Approach: Skip adding to SSH Agent and directly use the PEM key for SSH command
+        echo "${{ secrets.EC2_PEM_KEY }}" | tr -d '\r' | sed 's/\\n/\n/g' > test-cicd-deployment-kp.pem  # Fix newlines in the PEM file
+        sudo chmod 600 test-cicd-deployment-kp.pem  # Set the correct permissions for the PEM file
+
+    # Step 2: Skip converting PEM to OpenSSH format
+    # Commenting out the conversion step to avoid libcrypto errors
+    # - name: Convert PEM key to OpenSSH format (Optional)
+    #   run: |
+    #     ssh-keygen -p -m PEM -f test-cicd-deployment-kp.pem -P ""  # This step is skipped to avoid libcrypto error
+
+    # Step 3: Use PEM key directly without adding to SSH agent
     - name: Deploy to NGINX Server
       if: success()  # Only deploy if tests pass
       run: |
