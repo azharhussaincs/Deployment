@@ -36,6 +36,12 @@ jobs:
         echo "${{ secrets.EC2_PEM_KEY }}" | tr -d '\r' > test-cicd-deployment-kp.pem
         chmod 400 test-cicd-deployment-kp.pem
 
+    - name: Verify SSH Key
+      run: |
+        # Check the key format and content
+        cat test-cicd-deployment-kp.pem
+        ssh-keygen -y -f test-cicd-deployment-kp.pem  # This should output the public key
+
     - name: Deploy to Server
       if: success()  # Only deploy if tests pass
       run: |
