@@ -31,7 +31,7 @@ jobs:
 
     - name: Save PEM key from secret
       run: |
-        echo "${{ secrets.EC2_PEM_KEY }}" | tr -d '\r' > test-cicd-deployment-kp.pem
+        echo "${{ secrets.EC2_PEM_KEY }}" | tr -d '\r' > test-cicd-deployment-kp.pem  # Save the key
         chmod 400 test-cicd-deployment-kp.pem  # Ensure the key has the right permissions
 
     - name: Deploy to NGINX Server
