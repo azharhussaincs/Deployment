@@ -29,18 +29,19 @@ jobs:
       run: |
         python manage.py test
 
-    # Step 1: Save PEM key properly with newlines
-    - name: Save PEM key from secret
+    # Step 1: Save the PEM key correctly and convert if necessary
+    - name: Save PEM key from secret and convert to OpenSSH format
       run: |
-        echo "${{ secrets.EC2_PEM_KEY }}" | sed 's/\\n/\n/g' > test-cicd-deployment-kp.pem  # Ensure the correct newline format
-        sudo chmod 600 test-cicd-deployment-kp.pem  # Set permissions
+        echo "${{ secrets.EC2_PEM_KEY }}" | sed 's/\\n/\n/g' > test-cicd-deployment-kp.pem  # Save PEM key with proper newlines
+        sudo chmod 600 test-cicd-deployment-kp.pem  # Ensure correct permissions
+        ssh-keygen -p -m PEM -f test-cicd-deployment-kp.pem -P ""  # Convert key to OpenSSH format
 
-    # Step 2: Test SSH connection
+    # Step 2: Test SSH connection to ensure the key works
     - name: Test SSH Connection
       run: |
         ssh -i test-cicd-deployment-kp.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-54-98-30.compute-1.amazonaws.com "echo Connected to EC2" || echo "Connection Failed"
 
-    # Step 3: Deploy to EC2 instance
+    # Step 3: Deploy to EC2 if the connection and tests pass
     - name: Deploy to EC2 instance
       if: success()  # Only deploy if tests pass
       run: |
