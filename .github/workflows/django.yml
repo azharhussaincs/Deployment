@@ -49,5 +49,15 @@ jobs:
       run: |
         # Kill any existing Gunicorn process
         pkill gunicorn || true
-        # Start Gunicorn
+        # Start Gunicorn with logging for easier debugging
         nohup gunicorn --workers 3 --bind 0.0.0.0:8000 Deployment.wsgi:application &> gunicorn.log &
+
+    - name: Check Gunicorn Status
+      run: |
+        # Check if Gunicorn is running
+        if pgrep -f gunicorn > /dev/null; then
+          echo "Gunicorn is running successfully."
+        else
+          echo "Gunicorn failed to start."
+          exit 1
+        fi
