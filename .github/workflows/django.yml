@@ -6,15 +6,14 @@ on:
 
 jobs:
   build:
-    runs-on: self-hosted  # Ensure your self-hosted runner is correctly set up
-
+    runs-on: self-hosted
     strategy:
+      max-parallel: 4
       matrix:
-        python-version: [3.9]  # You can adjust this if needed
+        python-version: [3.9]
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
@@ -23,41 +22,14 @@ jobs:
 
     - name: Install Dependencies
       run: |
-        # Update package list
+        # Update package list and install NGINX and pip
         sudo apt update
-        
-        # Install NGINX and pip
         sudo apt install -y nginx python3-pip
-
+        
         # Install Gunicorn
         pip install gunicorn
 
-        # Install your Django project's dependencies
-        pip install -r ~/actions-runner/_work/Deployment/Deployment/requirements.txt  # Adjust path as needed
-
-    - name: Collect Static Files
+    - name: Run Gunicorn
       run: |
         cd ~/actions-runner/_work/Deployment/Deployment
-        python manage.py collectstatic --noinput
-
-    - name: Migrate Database
-      run: |
-        cd ~/actions-runner/_work/Deployment/Deployment
-        python manage.py migrate
-
-    - name: Restart Gunicorn
-      run: |
-        # Kill any existing Gunicorn process
-        pkill gunicorn || true
-        # Start Gunicorn with logging for easier debugging
         nohup gunicorn --workers 3 --bind 0.0.0.0:8000 Deployment.wsgi:application &> gunicorn.log &
-
-    - name: Check Gunicorn Status
-      run: |
-        # Check if Gunicorn is running
-        if pgrep -f gunicorn > /dev/null; then
-          echo "Gunicorn is running successfully."
-        else
-          echo "Gunicorn failed to start."
-          exit 1
-        fi
