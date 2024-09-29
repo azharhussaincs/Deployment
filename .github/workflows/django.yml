@@ -27,10 +27,9 @@ jobs:
         sudo apt install -y nginx python3-pip
         
         # Install Gunicorn
-        pip3 install gunicorn
-        
-        # Change to the project directory
+        pip install gunicorn
+
+    - name: Run Gunicorn
+      run: |
         cd ~/actions-runner/_work/Deployment/Deployment
-        
-        # Run Gunicorn
-        gunicorn --workers 3 Deployment.wsgi:application
+        nohup gunicorn --workers 3 --bind 0.0.0.0:8001 Deployment.wsgi:application &> gunicorn.log &
