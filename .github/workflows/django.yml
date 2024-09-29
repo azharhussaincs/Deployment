@@ -24,10 +24,10 @@ jobs:
       run: |
         # Update package list and install NGINX and pip
         sudo apt update
-        sudo apt install -y nginx python-pip
+        sudo apt install -y nginx python3-pip
         
         # Install Gunicorn
-        pip install gunicorn
+        pip3 install gunicorn
         
         # Change to the project directory
         cd ~/actions-runner/_work/Deployment/Deployment
