@@ -28,8 +28,27 @@ jobs:
         
         # Install Gunicorn
         pip install gunicorn
+        
+        # Install Django project's dependencies
+        pip install -r ~/actions-runner/_work/Deployment/Deployment/requirements.txt  # Adjust path as needed
 
-    - name: Run Gunicorn
+    - name: Create Static Directory
+      run: |
+        mkdir -p ~/actions-runner/_work/Deployment/Deployment/staticfiles  # Adjust path if needed
+
+    - name: Collect Static Files
       run: |
         cd ~/actions-runner/_work/Deployment/Deployment
+        python manage.py collectstatic --noinput
+
+    - name: Migrate Database
+      run: |
+        cd ~/actions-runner/_work/Deployment/Deployment
+        python manage.py migrate
+
+    - name: Restart Gunicorn
+      run: |
+        # Kill any existing Gunicorn process
+        pkill gunicorn || true
+        # Start Gunicorn
         nohup gunicorn --workers 3 --bind 0.0.0.0:8000 Deployment.wsgi:application &> gunicorn.log &
