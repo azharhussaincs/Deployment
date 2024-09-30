@@ -52,9 +52,12 @@ jobs:
         cd ~/actions-runner/_work/Deployment/Deployment
         python manage.py migrate
 
-    - name: Restart Gunicorn
+    - name: Kill Existing Gunicorn Process
       run: |
-        # Kill any existing Gunicorn process
         pkill gunicorn || true
-        # Start Gunicorn with UNIX socket (run in the foreground)
-        gunicorn --bind unix:gunicorn.sock --chdir ~/actions-runner/_work/Deployment/Deployment Deployment.wsgi:application &> gunicorn.log
+        ps aux | grep gunicorn  # List any running Gunicorn processes
+
+    - name: Start Gunicorn
+      run: |
+        # Start Gunicorn with UNIX socket
+        gunicorn --bind unix:gunicorn.sock --chdir ~/actions-runner/_work/Deployment/Deployment Deployment.wsgi:application --timeout 60
