@@ -8,17 +8,15 @@ jobs:
   build:
     runs-on: self-hosted
     strategy:
-      max-parallel: 4
-      matrix:
-        python-version: [3.9]
+      max-parallel: 1  # Set to 1 to avoid multiple jobs running at the same time
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python
       uses: actions/setup-python@v3
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: '3.9'
 
     - name: Install Dependencies
       run: |
@@ -54,7 +52,7 @@ jobs:
 
     - name: Stop Existing Gunicorn Process
       run: |
-        pkill gunicorn || true  # Stop any existing Gunicorn processes
+        pkill gunicorn || true  # Stop any running Gunicorn processes
         echo "Stopped existing Gunicorn processes."
 
     - name: Start Gunicorn
