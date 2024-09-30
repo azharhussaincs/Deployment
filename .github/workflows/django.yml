@@ -8,15 +8,17 @@ jobs:
   build:
     runs-on: self-hosted
     strategy:
-      max-parallel: 1  # Set to 1 to avoid multiple jobs running at the same time
+      max-parallel: 4
+      matrix:
+        python-version: [3.9]
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up Python
+    - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
       with:
-        python-version: '3.9'
+        python-version: ${{ matrix.python-version }}
 
     - name: Install Dependencies
       run: |
@@ -50,12 +52,12 @@ jobs:
         cd ~/actions-runner/_work/Deployment/Deployment
         python manage.py migrate
 
-    - name: Stop Existing Gunicorn Process
+    - name: Kill Existing Gunicorn Process
       run: |
-        pkill gunicorn || true  # Stop any running Gunicorn processes
-        echo "Stopped existing Gunicorn processes."
+        pkill gunicorn || true
+        ps aux | grep gunicorn  # List any running Gunicorn processes
 
     - name: Start Gunicorn
       run: |
         # Start Gunicorn with UNIX socket
-        gunicorn --bind unix:gunicorn.sock --chdir ~/actions-runner/_work/Deployment/Deployment Deployment.wsgi:application --timeout 60 --daemon
+        gunicorn --bind unix:gunicorn.sock --chdir ~/actions-runner/_work/Deployment/Deployment Deployment.wsgi:application --timeout 60
