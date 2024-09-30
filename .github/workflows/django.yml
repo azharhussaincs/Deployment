@@ -60,5 +60,5 @@ jobs:
     - name: Start Gunicorn
       run: |
         # Start Gunicorn with UNIX socket
-        nohup gunicorn --bind unix:/path/to/gunicorn.sock --chdir ~/actions-runner/_work/Deployment/Deployment Deployment.wsgi:application > gunicorn.log 2>&1 &
+        gunicorn --bind unix:gunicorn.sock --chdir ~/actions-runner/_work/Deployment/Deployment Deployment.wsgi:application --timeout 60
 
