@@ -50,5 +50,5 @@ jobs:
       run: |
         # Kill any existing Gunicorn process
         pkill gunicorn || true
-        # Start Gunicorn
-        nohup gunicorn --workers 3 --bind 0.0.0.0:8000 Deployment.wsgi:application &> gunicorn.log &
+        # Start Gunicorn with UNIX socket
+        nohup gunicorn --bind unix:gunicorn.sock --chdir ~/actions-runner/_work/Deployment/Deployment Deployment.wsgi:application &> gunicorn.log &
