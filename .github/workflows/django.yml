@@ -64,4 +64,4 @@ jobs:
     - name: Start Gunicorn
       run: |
         # Start Gunicorn with UNIX socket
-        gunicorn --bind unix:gunicorn.sock --chdir ~/actions-runner/_work/Deployment/Deployment Deployment.wsgi:application --timeout 60
+        gunicorn --bind unix:gunicorn.sock --chdir ~/actions-runner/_work/Deployment/Deployment Deployment.wsgi:application --timeout 10
