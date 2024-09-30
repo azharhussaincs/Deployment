@@ -4,6 +4,10 @@ on:
   push:
     branches: [ "main" ]
 
+concurrency:
+  group: "django-ci-${{ github.ref }}"
+  cancel-in-progress: true  # Cancel the previous run if it's still in progress
+
 jobs:
   build:
     runs-on: self-hosted
@@ -61,11 +65,3 @@ jobs:
       run: |
         # Start Gunicorn with UNIX socket
         gunicorn --bind unix:gunicorn.sock --chdir ~/actions-runner/_work/Deployment/Deployment Deployment.wsgi:application --timeout 60
-
-    - name: Ensure Gunicorn is Running
-      run: |
-        sleep 5  # Wait for a moment to allow Gunicorn to start
-        if ! pgrep -f gunicorn > /dev/null; then
-          echo "Gunicorn did not start successfully."
-          exit 1
-        fi
