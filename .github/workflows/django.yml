@@ -32,6 +32,12 @@ jobs:
         # Install Django project's dependencies
         pip install -r ~/actions-runner/_work/Deployment/Deployment/requirements.txt  # Adjust path as needed
 
+    - name: Check Current Directory
+      run: pwd
+
+    - name: List Files
+      run: ls -la ~/actions-runner/_work/Deployment/Deployment/
+
     - name: Create Static Directory
       run: |
         mkdir -p ~/actions-runner/_work/Deployment/Deployment/staticfiles  # Adjust path if needed
@@ -50,5 +56,5 @@ jobs:
       run: |
         # Kill any existing Gunicorn process
         pkill gunicorn || true
-        # Start Gunicorn with UNIX socket
-        nohup gunicorn --bind unix:gunicorn.sock --chdir ~/actions-runner/_work/Deployment/Deployment Deployment.wsgi:application &> gunicorn.log &
+        # Start Gunicorn with UNIX socket (run in the foreground)
+        gunicorn --bind unix:gunicorn.sock --chdir ~/actions-runner/_work/Deployment/Deployment Deployment.wsgi:application &> gunicorn.log
