@@ -54,19 +54,10 @@ jobs:
 
     - name: Kill Existing Gunicorn Process
       run: |
-        pkill gunicorn || true  # Kill any existing Gunicorn process
-        # Wait until no Gunicorn processes are running
-        while pgrep gunicorn; do
-          echo "Waiting for Gunicorn to terminate..."
-          sleep 1  # Wait for a second before checking again
-        done
-        echo "Gunicorn has been terminated."
+        pkill gunicorn || true
+        ps aux | grep gunicorn  # List any running Gunicorn processes
 
     - name: Start Gunicorn
       run: |
-        # Start Gunicorn with UNIX socket in the background
-        gunicorn --bind unix:gunicorn.sock --chdir ~/actions-runner/_work/Deployment/Deployment Deployment.wsgi:application --timeout 60 &> gunicorn.log &
-
-    - name: Notify of Deployment Success
-      run: |
-        echo "Deployment successful! Gunicorn is now running."
+        # Start Gunicorn with UNIX socket
+        gunicorn --bind unix:gunicorn.sock --chdir ~/actions-runner/_work/Deployment/Deployment Deployment.wsgi:application --timeout 60
